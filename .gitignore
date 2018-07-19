@@ -1,0 +1,7 @@
+#python
+.pytest_cache/
+*.egg-info/
+venv/
+
+#pycharm
+.idea/
