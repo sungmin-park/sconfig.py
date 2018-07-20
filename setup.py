@@ -10,6 +10,11 @@ setup(
     packages=['sconfig'],
     install_requires=[],
     extras_require={
-        'dev': ['pytest==3.6.3', 'pytest-mock==1.10.0']
+        'dev': [
+            'pytest==3.6.3',
+            'pytest-mock==1.10.0',
+            'wheel==0.31.1',
+            'twine==1.11.0'
+        ]
     }
 )

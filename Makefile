@@ -1,6 +1,13 @@
 test: setup
 	venv/bin/pytest
 
+bdist: test
+	rm -rf dist
+	venv/bin/python setup.py bdist_wheel
+
+upload: bdist
+	venv/bin/twine upload dist/*
+
 setup: venv
 	venv/bin/pip install pip==10.0.1
 	venv/bin/pip install -e .[dev]
@@ -8,4 +15,4 @@ setup: venv
 venv:
 	python3.6 -m venv venv
 
-.PHONY: setup
+.PHONY: setup test bdist
