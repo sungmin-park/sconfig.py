@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from sconfig import configure
 
 FIRST_NAME = 'John'
@@ -7,11 +5,12 @@ LAST_NAME = 'Doe'
 AGE = 22
 HAS_JOB = False
 
-_new_os_environ = {'FIRST_NAME': 'Jone', 'AGE': '30', 'HAS_JOB': 'true'}
 
+def test_integration(mocker):
+    # mock os.environ
+    _new_os_environ = {'FIRST_NAME': 'Jone', 'AGE': '30', 'HAS_JOB': 'true'}
+    mocker.patch('os.environ', new=_new_os_environ)
 
-@patch('os.environ', new=_new_os_environ)
-def test_integration():
     configure(__name__)
 
     # check module variables are changed
