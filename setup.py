@@ -10,6 +10,6 @@ setup(
     packages=['sconfig'],
     install_requires=[],
     extras_require={
-        'dev': ['pytest==3.6.3']
+        'dev': ['pytest==3.6.3', 'pytest-mock==1.10.0']
     }
 )
