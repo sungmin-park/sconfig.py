@@ -20,7 +20,9 @@ def configure(module):
 # TODO add test case
 def _convert(base, value):
     if base is True or base is False:
-        return bool(value)
+        if value:
+            return value.lower() == 'true'
+        return False
 
     if isinstance(base, str):
         return value

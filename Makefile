@@ -9,10 +9,10 @@ upload: bdist
 	venv/bin/twine upload dist/*
 
 setup: venv
-	venv/bin/pip install pip==10.0.1
+	venv/bin/pip install pip==19.0.2
 	venv/bin/pip install -e .[dev]
 
 venv:
-	python3.6 -m venv venv
+	python3.7 -m venv venv
 
 .PHONY: setup test bdist
