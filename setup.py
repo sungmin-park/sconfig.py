@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='sconfig',
-    version='0.0.1',
+    version='0.0.2',
     license='MIT',
     url='https://github.com/sungmin-park/sconfig.py',
     author='Park Sung Min',
