@@ -9,7 +9,7 @@ upload: bdist
 	venv/bin/twine upload dist/*
 
 setup: venv
-	venv/bin/pip install pip==19.0.2
+	venv/bin/pip install pip==19.3.1
 	venv/bin/pip install -e .[dev]
 
 venv:
