@@ -36,8 +36,9 @@ def _convert(base, value):
 
 def sconfig(cls: Type[Any]) -> None:
     for name in _attrs(cls):
-        if name in os.environ:
-            setattr(cls, name, os.environ[name])
+        env_name = _to_env_name(cls.__name__, name)
+        if env_name in os.environ:
+            setattr(cls, name, os.environ[env_name])
 
 
 def _attrs(obj: Any) -> Dict[str, Any]:
@@ -47,3 +48,7 @@ def _attrs(obj: Any) -> Dict[str, Any]:
             continue
         ret[attr_name] = getattr(obj, attr_name)
     return ret
+
+
+def _to_env_name(config_name, property_name):
+    return f'{config_name.upper()}_{property_name.upper()}'
