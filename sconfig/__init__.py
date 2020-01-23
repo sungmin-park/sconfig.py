@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from typing import Any, Dict, Type
 
 
 def configure(module):
@@ -31,3 +32,18 @@ def _convert(base, value):
         return int(value)
 
     raise NotImplemented()
+
+
+def sconfig(cls: Type[Any]) -> None:
+    for name in _attrs(cls):
+        if name in os.environ:
+            setattr(cls, name, os.environ[name])
+
+
+def _attrs(obj: Any) -> Dict[str, Any]:
+    ret = {}
+    for attr_name in dir(obj):
+        if attr_name.startswith('_'):
+            continue
+        ret[attr_name] = getattr(obj, attr_name)
+    return ret
