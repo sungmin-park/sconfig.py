@@ -37,10 +37,17 @@ def secret(type_: Type[T]) -> Type[T]:
 def _attrs(obj: Any) -> Dict[str, Any]:
     ret = {}
     for attr_name in dir(obj):
-        if attr_name.startswith('_'):
+        if _has_lower(attr_name) or attr_name.startswith('_'):
             continue
         ret[attr_name] = getattr(obj, attr_name)
     return ret
+
+
+def _has_lower(s: str) -> bool:
+    for c in s:
+        if c.islower():
+            return True
+    return False
 
 
 def _to_env_name(config_name, property_name):

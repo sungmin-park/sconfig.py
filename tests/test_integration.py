@@ -1,4 +1,5 @@
-from sconfig import configure, secret, _attrs, _to_env_name
+# noinspection PyProtectedMember
+from sconfig import configure, secret, _attrs, _to_env_name, _has_lower
 
 
 def test_integration(mocker):
@@ -23,10 +24,17 @@ def test_attrs():
         NAME = 'John'
         AGE = 21
 
-    # noinspection PyProtectedMember
+        def not_config(self):
+            pass
+
     assert _attrs(Person) == dict(NAME='John', AGE=21)
 
 
+def test_has_lower():
+    assert _has_lower('test')
+    assert _has_lower('Test')
+    assert not _has_lower('TEST')
+
+
 def test_env_name():
-    # noinspection PyProtectedMember
     assert _to_env_name('Person', 'NAME') == 'PERSON_NAME'
