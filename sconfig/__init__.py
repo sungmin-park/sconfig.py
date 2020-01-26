@@ -7,13 +7,18 @@ def configure(cls: Type[Any]) -> str:
     dumps = [f'* Simple Config - {cls.__name__}']
 
     for name in _attrs(cls):
+        hint = hints.get(name, None)
+
         # looking for variables on env
         env_name = _to_env_name(cls.__name__, name)
         if env_name in os.environ:
             setattr(cls, name, os.environ[env_name])
+        if hint and hasattr(hint, __SCONFIG_ENV_OVERRIDE_NAME__):
+            env_name = getattr(hint, __SCONFIG_ENV_OVERRIDE_NAME__)
+            if env_name and env_name in os.environ:
+                setattr(cls, name, os.environ[env_name])
 
         # check type hint. if type hint says it is secret, then do not dump the value
-        hint = hints.get(name, None)
         if hint and getattr(hint, __SCONFIG_SECRET__, False):
             value = '[SECRET]'
         else:
@@ -26,11 +31,18 @@ def configure(cls: Type[Any]) -> str:
 T = TypeVar('T')
 
 __SCONFIG_SECRET__ = '__sconfig_secret__'
+__SCONFIG_ENV_OVERRIDE_NAME__ = '__sconfig_env_override_name__'
 
 
 def secret(type_: Type[T]) -> Type[T]:
     new_type = NewType(f'secret_{type_.__name__}', type_)
     setattr(new_type, __SCONFIG_SECRET__, True)
+    return new_type
+
+
+def env(override_name, type_: Type[T]) -> Type[T]:
+    new_type = NewType(f'secret_{type_.__name__}', type_)
+    setattr(new_type, __SCONFIG_ENV_OVERRIDE_NAME__, override_name)
     return new_type
 
 
