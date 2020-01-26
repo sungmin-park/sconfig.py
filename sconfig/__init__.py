@@ -1,47 +1,37 @@
 import os
-import re
-import sys
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, TypeVar, NewType, get_type_hints
 
 
-def configure(module):
-    if isinstance(module, str):
-        module = sys.modules[module]
-
-    for name, value in vars(module).items():
-        if not re.match("^[A-Z_]+$", name):
-            continue
-
-        if name in os.environ:
-            setattr(module, name, _convert(value, os.environ[name]))
-        else:
-            os.environ[name] = str(value)
-
-
-# TODO add test case
-def _convert(base, value):
-    if base is True or base is False:
-        if value:
-            return value.lower() == 'true'
-        return False
-
-    if isinstance(base, str):
-        return value
-
-    if isinstance(base, int):
-        return int(value)
-
-    raise NotImplemented()
-
-
-def sconfig(cls: Type[Any]) -> str:
+def configure(cls: Type[Any]) -> str:
+    hints = get_type_hints(cls)
     dumps = [f'* Simple Config - {cls.__name__}']
+
     for name in _attrs(cls):
+        # looking for variables on env
         env_name = _to_env_name(cls.__name__, name)
         if env_name in os.environ:
             setattr(cls, name, os.environ[env_name])
-        dumps.append(f'    {name} = {getattr(cls, name)}')
+
+        # check type hint. if type hint says it is secret, then do not dump the value
+        hint = hints.get(name, None)
+        if hint and getattr(hint, __SCONFIG_SECRET__, False):
+            value = '[SECRET]'
+        else:
+            value = getattr(cls, name)
+
+        dumps.append(f'    {name} = {value}')
     return '\n'.join(dumps)
+
+
+T = TypeVar('T')
+
+__SCONFIG_SECRET__ = '__sconfig_secret__'
+
+
+def secret(type_: Type[T]) -> Type[T]:
+    new_type = NewType(f'secret_{type_.__name__}', type_)
+    setattr(new_type, __SCONFIG_SECRET__, True)
+    return new_type
 
 
 def _attrs(obj: Any) -> Dict[str, Any]:

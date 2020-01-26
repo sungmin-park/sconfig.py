@@ -1,4 +1,4 @@
-import sconfig
+from sconfig import configure, secret, _attrs, _to_env_name
 
 
 def test_integration(mocker):
@@ -7,12 +7,14 @@ def test_integration(mocker):
 
     class Integration:
         name = 'John'
+        secret_key: secret(str) = 'very secret key'
 
-    dumps = sconfig.sconfig(Integration)
+    dumps = configure(Integration)
 
     assert Integration.name == 'Jane'
     assert dumps == f"""* Simple Config - Integration
-    name = {Integration.name}"""
+    name = {Integration.name}
+    secret_key = [SECRET]"""
 
 
 def test_attrs():
@@ -21,9 +23,9 @@ def test_attrs():
         age = 21
 
     # noinspection PyProtectedMember
-    assert sconfig._attrs(Person) == dict(name='John', age=21)
+    assert _attrs(Person) == dict(name='John', age=21)
 
 
 def test_env_name():
     # noinspection PyProtectedMember
-    assert sconfig._to_env_name('Person', 'name') == 'PERSON_NAME'
+    assert _to_env_name('Person', 'name') == 'PERSON_NAME'
