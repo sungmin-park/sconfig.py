@@ -2,15 +2,17 @@ import sconfig
 
 
 def test_integration(mocker):
-    _new_os_environ = {'CONFIG_NAME': 'Jane'}
+    _new_os_environ = {'INTEGRATION_NAME': 'Jane'}
     mocker.patch('os.environ', new=_new_os_environ)
 
-    class Config:
+    class Integration:
         name = 'John'
 
-    sconfig.sconfig(Config)
+    dumps = sconfig.sconfig(Integration)
 
-    assert Config.name == 'Jane'
+    assert Integration.name == 'Jane'
+    assert dumps == f"""* Simple Config - Integration
+    name = {Integration.name}"""
 
 
 def test_attrs():

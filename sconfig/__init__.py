@@ -34,11 +34,14 @@ def _convert(base, value):
     raise NotImplemented()
 
 
-def sconfig(cls: Type[Any]) -> None:
+def sconfig(cls: Type[Any]) -> str:
+    dumps = [f'* Simple Config - {cls.__name__}']
     for name in _attrs(cls):
         env_name = _to_env_name(cls.__name__, name)
         if env_name in os.environ:
             setattr(cls, name, os.environ[env_name])
+        dumps.append(f'    {name} = {getattr(cls, name)}')
+    return '\n'.join(dumps)
 
 
 def _attrs(obj: Any) -> Dict[str, Any]:
