@@ -6,26 +6,27 @@ def test_integration(mocker):
     mocker.patch('os.environ', new=_new_os_environ)
 
     class Integration:
-        name = 'John'
-        secret_key: secret(str) = 'very secret key'
+        NAME = 'John'
+        SECRET_KEY: secret(str) = 'very secret key'
 
     dumps = configure(Integration)
 
-    assert Integration.name == 'Jane'
+    assert Integration.NAME == 'Jane'
+    assert Integration.SECRET_KEY == 'very secret key'
     assert dumps == f"""* Simple Config - Integration
-    name = {Integration.name}
-    secret_key = [SECRET]"""
+    NAME = {Integration.NAME}
+    SECRET_KEY = [SECRET]"""
 
 
 def test_attrs():
     class Person:
-        name = 'John'
-        age = 21
+        NAME = 'John'
+        AGE = 21
 
     # noinspection PyProtectedMember
-    assert _attrs(Person) == dict(name='John', age=21)
+    assert _attrs(Person) == dict(NAME='John', AGE=21)
 
 
 def test_env_name():
     # noinspection PyProtectedMember
-    assert _to_env_name('Person', 'name') == 'PERSON_NAME'
+    assert _to_env_name('Person', 'NAME') == 'PERSON_NAME'
