@@ -8,18 +8,20 @@ from stringcase import snakecase, uppercase, spinalcase
 
 def configure(cls: Type[Any]) -> str:
     hints = get_type_hints(cls)
-    config = {}
     config_name = cls.__name__
+    env_config_name = _to_env_config_name(config_name)
 
     toml_config = {}
     config_file_name = os.environ.get(
-        f'SCONFIG_{_to_env_config_name(config_name)}', _to_config_file_name(config_name)
+        f'SCONFIG_{env_config_name}', _to_config_file_name(config_name)
     )
     if Path(config_file_name).is_file():
         with open(config_file_name, 'r') as f:
             whole_toml = toml.loads(f.read())
             toml_config = whole_toml.get(config_name, {})
 
+    ret_toml_config = {}
+    ret_env_config = {}
     for name in _attrs(cls):
         hint = hints.get(name, None)
 
@@ -42,9 +44,10 @@ def configure(cls: Type[Any]) -> str:
         else:
             value = getattr(cls, name)
 
-        config[name] = value
+        ret_toml_config[name] = value
+        ret_env_config[env_name] = value
 
-    return toml.dumps({config_name: config})
+    return toml.dumps({config_name: ret_toml_config, env_config_name: ret_env_config})
 
 
 T = TypeVar('T')
