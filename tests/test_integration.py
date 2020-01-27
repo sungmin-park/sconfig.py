@@ -1,7 +1,7 @@
 import os
 
 # noinspection PyProtectedMember
-from sconfig import configure, secret, _attrs, _to_env_name, _has_lower, env, _to_env_config_name, _to_config_file_name
+from sconfig import configure, secret, _attrs, _to_env_name, _has_lower, env, _to_env_config_name
 
 
 def test_integration(mocker):
@@ -60,7 +60,3 @@ def test_env_name():
 
 def test_env_config_name():
     assert _to_env_config_name('PersonAddress') == 'PERSON_ADDRESS'
-
-
-def test_config_file_name():
-    assert _to_config_file_name('PersonAddress') == 'person-address.toml'
