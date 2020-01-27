@@ -1,7 +1,8 @@
 import os
 
 # noinspection PyProtectedMember
-from sconfig import configure, secret, _attrs, _to_env_name, _has_lower, env, _to_env_config_name
+from sconfig import configure, secret, _attrs, _to_env_name, _has_lower, env, _to_env_config_name, _hasattr_r, \
+    __SCONFIG_SECRET__, __SCONFIG_ENV_OVERRIDE_NAME__, _getattr_r
 
 
 def test_integration(mocker):
@@ -17,6 +18,8 @@ def test_integration(mocker):
         LAST_NAME = 'Doe'
         OVERRIDE: env('CUSTOM_OVERRIDE', str) = 'DEFAULT'
         SECRET_KEY: secret(str) = 'very secret key'
+        SECRET_KEY_OVERRIDE: secret(env('', str)) = 'very secret key override'
+        OVERRIDE_SECRET_KEY: env('CUSTOM_OVERRIDE_SECRET', secret(str)) = 'override very secret key'
 
     dumps = configure(Integration)
 
@@ -27,13 +30,17 @@ def test_integration(mocker):
 FIRST_NAME = "{Integration.FIRST_NAME}"
 LAST_NAME = "{Integration.LAST_NAME}"
 OVERRIDE = "CUSTOM"
+OVERRIDE_SECRET_KEY = "[SECRET]"
 SECRET_KEY = "[SECRET]"
+SECRET_KEY_OVERRIDE = "[SECRET]"
 
 [INTEGRATION]
 INTEGRATION_FIRST_NAME = "{Integration.FIRST_NAME}"
 INTEGRATION_LAST_NAME = "{Integration.LAST_NAME}"
 CUSTOM_OVERRIDE = "CUSTOM"
+INTEGRATION_OVERRIDE_SECRET_KEY = "[SECRET]"
 INTEGRATION_SECRET_KEY = "[SECRET]"
+INTEGRATION_SECRET_KEY_OVERRIDE = "[SECRET]"
 """
 
 
@@ -60,3 +67,15 @@ def test_env_name():
 
 def test_env_config_name():
     assert _to_env_config_name('PersonAddress') == 'PERSON_ADDRESS'
+
+
+def test_has_attr_r():
+    assert _hasattr_r(env('', secret(str)), __SCONFIG_ENV_OVERRIDE_NAME__)
+    assert _hasattr_r(env('', secret(str)), __SCONFIG_SECRET__)
+    assert _hasattr_r(secret(str), __SCONFIG_ENV_OVERRIDE_NAME__) is False
+
+
+def test_getattr_r():
+    assert _getattr_r(env('name', str), __SCONFIG_ENV_OVERRIDE_NAME__, None) == 'name'
+    assert _getattr_r(secret(env('name', str)), __SCONFIG_ENV_OVERRIDE_NAME__, None) == 'name'
+    assert _getattr_r(secret(type), __SCONFIG_ENV_OVERRIDE_NAME__, None) is None

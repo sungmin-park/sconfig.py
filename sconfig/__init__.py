@@ -33,13 +33,14 @@ def configure(cls: Type[Any]) -> str:
         env_name = _to_env_name(config_name, name)
         if env_name in os.environ:
             setattr(cls, name, os.environ[env_name])
-        if hint and hasattr(hint, __SCONFIG_ENV_OVERRIDE_NAME__):
-            env_name = getattr(hint, __SCONFIG_ENV_OVERRIDE_NAME__)
-            if env_name and env_name in os.environ:
-                setattr(cls, name, os.environ[env_name])
+        if hint and _hasattr_r(hint, __SCONFIG_ENV_OVERRIDE_NAME__):
+            override_env_name = _getattr_r(hint, __SCONFIG_ENV_OVERRIDE_NAME__, None)
+            if override_env_name and override_env_name in os.environ:
+                setattr(cls, name, os.environ[override_env_name])
+                env_name = override_env_name
 
         # check type hint. if type hint says it is secret, then do not dump the value
-        if hint and getattr(hint, __SCONFIG_SECRET__, False):
+        if hint and _getattr_r(hint, __SCONFIG_SECRET__, False):
             value = '[SECRET]'
         else:
             value = getattr(cls, name)
@@ -75,6 +76,22 @@ def _attrs(obj: Any) -> Dict[str, Any]:
             continue
         ret[attr_name] = getattr(obj, attr_name)
     return ret
+
+
+def _hasattr_r(obj: Any, attr: str) -> bool:
+    if hasattr(obj, attr):
+        return True
+    if hasattr(obj, '__supertype__'):
+        return _hasattr_r(obj.__supertype__, attr)
+    return False
+
+
+def _getattr_r(obj: Any, attr: str, default):
+    if hasattr(obj, attr):
+        return getattr(obj, attr)
+    if hasattr(obj, '__supertype__'):
+        return _getattr_r(obj.__supertype__, attr, default)
+    return default
 
 
 def _has_lower(s: str) -> bool:
