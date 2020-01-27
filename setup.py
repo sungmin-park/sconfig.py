@@ -8,7 +8,7 @@ setup(
     author='Park Sung Min',
     description='Simple config',
     packages=['sconfig'],
-    install_requires=['toml==0.10.0'],
+    install_requires=['toml==0.10.0', 'stringcase==1.2.0'],
     extras_require={
         'dev': [
             'pytest==3.6.3',

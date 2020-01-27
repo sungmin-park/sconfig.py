@@ -1,18 +1,34 @@
 import os
+from pathlib import Path
 from typing import Any, Dict, Type, TypeVar, NewType, get_type_hints
 
 import toml
+from stringcase import snakecase, uppercase, spinalcase
 
 
 def configure(cls: Type[Any]) -> str:
     hints = get_type_hints(cls)
     config = {}
+    config_name = cls.__name__
+
+    toml_config = {}
+    config_file_name = os.environ.get(
+        f'SCONFIG_{_to_env_config_name(config_name)}', _to_config_file_name(config_name)
+    )
+    if Path(config_file_name).is_file():
+        with open(config_file_name, 'r') as f:
+            whole_toml = toml.loads(f.read())
+            toml_config = whole_toml.get(config_name, {})
 
     for name in _attrs(cls):
         hint = hints.get(name, None)
 
+        # looking for variables on toml file
+        if name in toml_config:
+            setattr(cls, name, toml_config[name])
+
         # looking for variables on env
-        env_name = _to_env_name(cls.__name__, name)
+        env_name = _to_env_name(config_name, name)
         if env_name in os.environ:
             setattr(cls, name, os.environ[env_name])
         if hint and hasattr(hint, __SCONFIG_ENV_OVERRIDE_NAME__):
@@ -28,7 +44,7 @@ def configure(cls: Type[Any]) -> str:
 
         config[name] = value
 
-    return toml.dumps({cls.__name__: config})
+    return toml.dumps({config_name: config})
 
 
 T = TypeVar('T')
@@ -66,4 +82,12 @@ def _has_lower(s: str) -> bool:
 
 
 def _to_env_name(config_name, property_name):
-    return f'{config_name.upper()}_{property_name.upper()}'
+    return f'{_to_env_config_name(config_name)}_{property_name.upper()}'
+
+
+def _to_env_config_name(config_name: str) -> str:
+    return uppercase(snakecase(config_name))
+
+
+def _to_config_file_name(config_name: str) -> str:
+    return f'{spinalcase(config_name)}.toml'
