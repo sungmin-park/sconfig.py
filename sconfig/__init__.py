@@ -1,10 +1,12 @@
 import os
 from typing import Any, Dict, Type, TypeVar, NewType, get_type_hints
 
+import toml
+
 
 def configure(cls: Type[Any]) -> str:
     hints = get_type_hints(cls)
-    dumps = [f'* Simple Config - {cls.__name__}']
+    config = {}
 
     for name in _attrs(cls):
         hint = hints.get(name, None)
@@ -24,8 +26,9 @@ def configure(cls: Type[Any]) -> str:
         else:
             value = getattr(cls, name)
 
-        dumps.append(f'    {name} = {value}')
-    return '\n'.join(dumps)
+        config[name] = value
+
+    return toml.dumps({cls.__name__: config})
 
 
 T = TypeVar('T')

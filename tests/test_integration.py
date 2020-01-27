@@ -15,10 +15,11 @@ def test_integration(mocker):
 
     assert Integration.NAME == 'Jane'
     assert Integration.SECRET_KEY == 'very secret key'
-    assert dumps == f"""* Simple Config - Integration
-    NAME = {Integration.NAME}
-    OVERRIDE = CUSTOM
-    SECRET_KEY = [SECRET]"""
+    assert dumps == f"""[Integration]
+NAME = "{Integration.NAME}"
+OVERRIDE = "CUSTOM"
+SECRET_KEY = "[SECRET]"
+"""
 
 
 def test_attrs():
