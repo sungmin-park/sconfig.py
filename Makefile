@@ -1,5 +1,8 @@
+open: setup
+	nix-shell --run 'pycharm .'
+
 test: setup
-	venv/bin/pytest
+	nix-shell --run 'venv/bin/pytest'
 
 bdist: test
 	rm -rf dist
@@ -9,10 +12,10 @@ upload: bdist
 	venv/bin/twine upload dist/*
 
 setup: venv
-	venv/bin/pip install pip==19.0.2
-	venv/bin/pip install -e .[dev]
+	nix-shell --run 'venv/bin/pip install pip==19.0.2'
+	nix-shell --run 'venv/bin/pip install -e .[dev]'
 
 venv:
-	python3.7 -m venv venv
+	nix-shell --run 'python3.7 -m venv venv'
 
 .PHONY: setup test bdist
