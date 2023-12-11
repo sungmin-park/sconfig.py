@@ -8,7 +8,7 @@ def configure(module):
         module = sys.modules[module]
 
     for name, value in vars(module).items():
-        if not re.match("^[A-Z_]+$", name):
+        if not re.match("^[A-Z_][A-Z_0-9]*$", name):
             continue
 
         if name in os.environ:
