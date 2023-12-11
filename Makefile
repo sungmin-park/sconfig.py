@@ -12,7 +12,7 @@ upload: bdist
 	venv/bin/twine upload dist/*
 
 setup: venv
-	nix-shell --run 'venv/bin/pip install pip==19.0.2'
+	nix-shell --run 'venv/bin/pip install pip==23.3.1'
 	nix-shell --run 'venv/bin/pip install -e .[dev]'
 
 venv:

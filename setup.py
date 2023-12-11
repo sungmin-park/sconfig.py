@@ -14,7 +14,7 @@ setup(
             'pytest==3.6.3',
             'pytest-mock==1.10.0',
             'wheel==0.31.1',
-            'twine==1.11.0'
+            'twine==4.0.2'
         ]
     }
 )
